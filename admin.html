@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KVS Lost & Found - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="kvs-logo">⚙️</div>
+                <div>
+                    <h1>KVS Lost & Found</h1>
+                    <p>Admin Panel</p>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="nav-btn" data-tab="claims">Claims</button>
+                <button class="nav-btn" data-tab="items">Items</button>
+                <button class="nav-btn" data-tab="history">History</button>
+                <button class="nav-btn" onclick="logout()">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div class="form-container">
+                <h2 style="color: var(--kvs-navy); margin-bottom: 30px;">📊 Admin Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="lostCount">0</div>
+                        <div class="stat-label">Lost Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="foundCount">0</div>
+                        <div class="stat-label">Found Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingCount">0</div>
+                        <div class="stat-label">Pending Claims</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="approvedCount">0</div>
+                        <div class="stat-label">Approved Claims</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="rejectedCount">0</div>
+                        <div class="stat-label">Rejected Claims</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="usersCount">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px; color: var(--kvs-navy);">Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="switchTab('claims')">
+                        View Pending Claims
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchTab('items')">
+                        Manage All Items
+                    </button>
+                    <button class="btn btn-primary" onclick="switchTab('history')">
+                        View History
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLAIMS TAB -->
+        <div id="claims" class="tab-content">
+            <div class="form-container">
+                <h2 style="color: var(--kvs-navy); margin-bottom: 20px;">📋 Manage Claims</h2>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="loadPendingClaims()">Pending</button>
+                    <button class="btn btn-secondary" onclick="loadApprovedClaims()">Approved</button>
+                    <button class="btn btn-secondary" onclick="loadRejectedClaims()">Rejected</button>
+                </div>
+
+                <table class="claims-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Claimer Name</th>
+                            <th>Contact</th>
+                            <th>Proof</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                                Loading claims...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ITEMS TAB -->
+        <div id="items" class="tab-content">
+            <div class="form-container">
+                <h2 style="color: var(--kvs-navy); margin-bottom: 20px;">📦 Manage Items</h2>
+                
+                <div class="search-bar">
+                    <input 
+                        type="text" 
+                        id="itemSearchInput" 
+                        placeholder="Search by item name..."
+                        onkeyup="filterAdminItems()"
+                    >
+                </div>
+
+                <table class="claims-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Item Name</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Reported By</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                                Loading items...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="history" class="tab-content">
+            <div class="form-container">
+                <h2 style="color: var(--kvs-navy); margin-bottom: 20px;">📜 Claim History</h2>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="loadApprovedClaims()">✅ Approved</button>
+                    <button class="btn btn-danger" onclick="loadRejectedClaims()">❌ Rejected</button>
+                </div>
+
+                <table class="claims-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Claimer</th>
+                            <th>Approved/Rejected By</th>
+                            <th>Reason/Notes</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                                Loading history...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ALERTS -->
+    <div id="alertsContainer"></div>
+
+    <!-- MODALS -->
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Approve Claim</h2>
+                <button class="close-btn" onclick="closeApproveModal()">&times;</button>
+            </div>
+            <div id="approveModalBody"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <input 
+                    type="text" 
+                    id="approveNotes" 
+                    placeholder="Notes (optional)"
+                    style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                >
+                <button class="btn btn-success" onclick="confirmApprove()">Approve</button>
+                <button class="btn btn-secondary" onclick="closeApproveModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reject Claim</h2>
+                <button class="close-btn" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <div id="rejectModalBody"></div>
+            <textarea 
+                id="rejectReason" 
+                placeholder="Reason for rejection..." 
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 15px; min-height: 80px;"
+            ></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-danger" onclick="confirmReject()">Reject</button>
+                <button class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editItemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Item</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="editItemName" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" id="editItemCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editItemDescription" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 80px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-primary" onclick="confirmEditItem()">Save</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 KVS Lost & Found Admin Panel</p>
+        <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+            P.M Shri Kendriya Vidyalaya No.1, Sagar Cantt
+        </p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || user.role !== 'Admin') {
+                window.location.href = 'index.html';
+            }
+            loadDashboard();
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
